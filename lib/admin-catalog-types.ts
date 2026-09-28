@@ -114,6 +114,8 @@ export const weekdayLabels: Record<number, string> = {
   3: 'Thứ Tư',
   4: 'Thứ Năm',
   5: 'Thứ Sáu',
+  6: 'Thứ Bảy',
+  7: 'Chủ nhật',
 };
 
 export const sessionLabels: Record<SessionType, string> = {

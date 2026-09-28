@@ -44,7 +44,7 @@ export function TemplatesManager() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8">
+    <main className="mx-auto w-full max-w-[1380px] px-3.5 py-5 sm:px-6 sm:py-8">
       <AdminContentHeader
         action={
           <Button className="w-full sm:w-auto" onClick={openCreate}>

@@ -18,7 +18,7 @@ export function isDateInsideAcademicYear(
   startsOn: string,
   academicYear: { starts_on: string; ends_on: string },
 ) {
-  const endsOn = addDays(startsOn, 4);
+  const endsOn = addDays(startsOn, 6);
   return startsOn >= academicYear.starts_on && endsOn <= academicYear.ends_on;
 }
 

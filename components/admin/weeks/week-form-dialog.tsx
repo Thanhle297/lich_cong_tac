@@ -95,7 +95,7 @@ export function WeekFormDialog({
           <DialogHeader>
             <DialogTitle>Tạo tuần công tác</DialogTitle>
             <DialogDescription>
-              Tuần luôn bắt đầu vào Thứ Hai và kết thúc vào Thứ Sáu.
+              Tuần luôn bắt đầu vào Thứ Hai và kết thúc vào Chủ nhật.
             </DialogDescription>
           </DialogHeader>
 

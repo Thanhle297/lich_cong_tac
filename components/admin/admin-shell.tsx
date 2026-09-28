@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import Link from 'next/link';
+import Link from '@/components/ui/plain-link';
 import { usePathname } from 'next/navigation';
 import {
   CalendarDays,
@@ -136,9 +136,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </SidebarFooter>
       </Sidebar>
 
-      <SidebarInset className="min-h-screen bg-[#f2f6fb]">
-        <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6">
-          <SidebarTrigger aria-label="Mở hoặc thu gọn thanh điều hướng" />
+      <SidebarInset className="min-h-svh min-w-0 bg-[#f2f6fb]">
+        <header className="sticky top-0 z-10 flex h-14 items-center gap-3 border-b border-slate-200 bg-white/95 px-3.5 backdrop-blur sm:h-16 sm:px-6">
+          <SidebarTrigger className="size-9" aria-label="Mở hoặc thu gọn thanh điều hướng" />
           <div className="h-5 w-px bg-slate-200" />
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-slate-900">

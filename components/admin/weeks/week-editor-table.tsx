@@ -71,7 +71,111 @@ export function WeekEditorTable({
         <span className="text-sm text-slate-500">{entries.length} nội dung</span>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="divide-y divide-slate-200 lg:hidden">
+        {days.map((day) => (
+          <article className="px-3.5 py-5 sm:px-5" key={day.date}>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="font-extrabold capitalize text-slate-900">
+                {day.label}
+              </h2>
+              <span className="rounded-lg bg-cyan-50 px-2.5 py-1 text-sm font-bold text-[#0c6e85]">
+                {day.shortDate}
+              </span>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <section className="min-w-0 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+                <h3 className="mb-3 text-xs font-extrabold uppercase tracking-[0.08em] text-slate-500">
+                  Buổi sáng
+                </h3>
+                <WeekEditorCell
+                  compact
+                  defaults={{
+                    event_date: day.date,
+                    scope: 'common',
+                    campus_id: null,
+                    kind: 'schedule',
+                    session: 'morning',
+                  }}
+                  entries={entriesFor(day.date, 'common', 'morning')}
+                  {...cellProps}
+                />
+              </section>
+              <section className="min-w-0 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+                <h3 className="mb-3 text-xs font-extrabold uppercase tracking-[0.08em] text-slate-500">
+                  Buổi chiều
+                </h3>
+                <WeekEditorCell
+                  compact
+                  defaults={{
+                    event_date: day.date,
+                    scope: 'common',
+                    campus_id: null,
+                    kind: 'schedule',
+                    session: 'afternoon',
+                  }}
+                  entries={entriesFor(day.date, 'common', 'afternoon')}
+                  {...cellProps}
+                />
+              </section>
+            </div>
+
+            {campuses.length ? (
+              <section className="mt-3 rounded-xl border border-cyan-100 bg-cyan-50/45 p-3">
+                <h3 className="mb-3 text-xs font-extrabold uppercase tracking-[0.08em] text-slate-500">
+                  Trực và phân công
+                </h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {campuses.map((campus) => (
+                    <div className="min-w-0" key={campus.id}>
+                      <p className="mb-2 text-xs font-extrabold text-[#0c6e85]">
+                        {campus.code}
+                      </p>
+                      <WeekEditorCell
+                        compact
+                        defaults={{
+                          event_date: day.date,
+                          scope: 'campus',
+                          campus_id: campus.id,
+                          kind: 'duty',
+                          session: 'morning',
+                        }}
+                        entries={entriesFor(
+                          day.date,
+                          'campus',
+                          undefined,
+                          campus.id,
+                        )}
+                        {...cellProps}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            <section className="mt-3 rounded-xl border border-amber-200 bg-amber-50/55 p-3">
+              <h3 className="mb-3 text-xs font-extrabold uppercase tracking-[0.08em] text-slate-500">
+                Ghi chú
+              </h3>
+              <WeekEditorCell
+                compact
+                defaults={{
+                  event_date: day.date,
+                  scope: 'common',
+                  campus_id: null,
+                  kind: 'schedule',
+                  session: 'all_day',
+                }}
+                entries={entriesFor(day.date, 'common', 'all_day')}
+                {...cellProps}
+              />
+            </section>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[1280px] border-collapse">
           <thead>
             <tr className="bg-[#0c6e85] text-left text-xs font-bold uppercase tracking-[0.07em] text-white">

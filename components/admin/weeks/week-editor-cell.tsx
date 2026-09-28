@@ -10,6 +10,7 @@ import type {
   AdminCalendarEntry,
   WeekCellDefaults,
 } from '@/lib/admin-week-types';
+import { cn } from '@/lib/utils';
 
 export function WeekEditorCell({
   entries,
@@ -20,6 +21,7 @@ export function WeekEditorCell({
   onEdit,
   onDelete,
   onMove,
+  compact = false,
 }: {
   entries: AdminCalendarEntry[];
   defaults: WeekCellDefaults;
@@ -32,9 +34,10 @@ export function WeekEditorCell({
     entry: AdminCalendarEntry,
     direction: 'up' | 'down',
   ) => Promise<void>;
+  compact?: boolean;
 }) {
   return (
-    <div className="min-h-28 space-y-2">
+    <div className={cn('space-y-2', compact ? 'min-h-0' : 'min-h-28')}>
       {entries.map((entry, index) => (
         <article
           className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm"

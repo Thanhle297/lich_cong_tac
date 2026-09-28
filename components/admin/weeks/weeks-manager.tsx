@@ -1,8 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Link from '@/components/ui/plain-link';
 import { CalendarRange, Plus, Settings2 } from 'lucide-react';
 
 import { AdminContentHeader } from '@/components/admin/admin-content-header';
@@ -26,7 +25,6 @@ import { WeekList } from './week-list';
 type StatusFilter = 'all' | WeekStatus;
 
 export function WeeksManager() {
-  const router = useRouter();
   const { profile } = useAdminAuth();
   const {
     weeks,
@@ -52,13 +50,13 @@ export function WeeksManager() {
   async function handleCreate(input: Parameters<typeof createWeek>[0]) {
     const weekId = await createWeek(input);
     if (weekId) {
-      router.push(`/admin/weeks/${weekId}`);
+      window.location.href = `/admin/weeks/${weekId}`;
     }
     return weekId;
   }
 
   return (
-    <main className="mx-auto w-full max-w-[1480px] px-4 py-6 sm:px-6 sm:py-8">
+    <main className="mx-auto w-full max-w-[1480px] px-3.5 py-5 sm:px-6 sm:py-8">
       <AdminContentHeader
         action={
           <Button
@@ -95,7 +93,7 @@ export function WeeksManager() {
         </Card>
       ) : null}
 
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex flex-col gap-3 min-[480px]:flex-row min-[480px]:items-center min-[480px]:justify-between">
         <p className="text-sm text-slate-500">
           {filteredWeeks.length} tuần trong danh sách
         </p>
@@ -103,7 +101,7 @@ export function WeeksManager() {
           onValueChange={(value) => setStatusFilter(value as StatusFilter)}
           value={statusFilter}
         >
-          <SelectTrigger className="w-48 bg-white">
+          <SelectTrigger className="w-full bg-white min-[480px]:w-48">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

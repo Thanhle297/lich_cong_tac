@@ -19,7 +19,7 @@ export function AdminDashboard() {
     'Năm học đang hoạt động';
 
   return (
-    <div className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8">
+    <div className="mx-auto w-full max-w-[1380px] px-3.5 py-5 sm:px-6 sm:py-8">
       <div className="mb-7 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-[#0c6e85]">

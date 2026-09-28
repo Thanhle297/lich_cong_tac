@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, type ReactNode } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { CircleAlert, RefreshCw } from 'lucide-react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -13,16 +13,15 @@ import { AdminShell } from './admin-shell';
 
 export function AdminGate({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const { status, email, error, retry, signOut } = useAdminAuth();
   const isLoginPage = pathname === '/admin/login';
 
   useEffect(() => {
     if (!isLoginPage && status === 'unauthenticated') {
       const returnTo = encodeURIComponent(pathname || '/admin');
-      router.replace(`/admin/login?returnTo=${returnTo}`);
+      window.location.replace(`/admin/login?returnTo=${returnTo}`);
     }
-  }, [isLoginPage, pathname, router, status]);
+  }, [isLoginPage, pathname, status]);
 
   if (isLoginPage) {
     return children;

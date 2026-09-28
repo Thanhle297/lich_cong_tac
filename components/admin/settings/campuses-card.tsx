@@ -58,13 +58,14 @@ export function CampusesCard({
           </CardDescription>
           <CardAction>
             <Button
+              aria-label="Thêm phân hiệu"
               disabled={!availableCodes.length}
               onClick={openCreate}
               size="sm"
               variant="outline"
             >
               <Plus aria-hidden="true" />
-              Thêm phân hiệu
+              <span className="hidden min-[480px]:inline">Thêm phân hiệu</span>
             </Button>
           </CardAction>
         </CardHeader>

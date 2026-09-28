@@ -64,13 +64,18 @@ export function TemplateFormDialog({
   people: Person[];
   isSaving: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (input: RecurringTemplateInput, id?: string) => Promise<boolean>;
+  onSubmit: (
+    input: RecurringTemplateInput | RecurringTemplateInput[],
+    id?: string,
+  ) => Promise<boolean>;
 }) {
   const [form, setForm] = useState<RecurringTemplateInput>(emptyForm);
+  const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([1]);
   const [validationError, setValidationError] = useState('');
 
   useEffect(() => {
     setValidationError('');
+    setSelectedWeekdays([template?.weekday ?? 1]);
     setForm(
       template
         ? {
@@ -126,16 +131,32 @@ export function TemplateFormDialog({
     }));
   }
 
+  function toggleWeekday(weekday: number, checked: boolean) {
+    setSelectedWeekdays((current) =>
+      checked
+        ? [...new Set([...current, weekday])].sort((left, right) => left - right)
+        : current.filter((value) => value !== weekday),
+    );
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setValidationError('');
+
+    if (!template && !selectedWeekdays.length) {
+      setValidationError('Vui lòng chọn ít nhất một ngày trong tuần.');
+      return;
+    }
 
     if (form.scope === 'campus' && !form.campus_id) {
       setValidationError('Vui lòng chọn phân hiệu cho mẫu trực hoặc phân công.');
       return;
     }
 
-    const saved = await onSubmit(form, template?.id);
+    const input = template
+      ? form
+      : selectedWeekdays.map((weekday) => ({ ...form, weekday }));
+    const saved = await onSubmit(input, template?.id);
     if (saved) {
       onOpenChange(false);
     }
@@ -148,7 +169,9 @@ export function TemplateFormDialog({
           <DialogHeader>
             <DialogTitle>{template ? 'Chỉnh sửa mẫu lịch' : 'Thêm mẫu lịch'}</DialogTitle>
             <DialogDescription>
-              Mẫu đang hoạt động sẽ được dùng khi tạo tuần mới từ mẫu.
+              {template
+                ? 'Mẫu đang hoạt động sẽ được dùng khi tạo tuần mới từ mẫu.'
+                : 'Chọn nhiều ngày để tạo cùng một nội dung mà không phải nhập lại.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -195,25 +218,82 @@ export function TemplateFormDialog({
                 <Input disabled value="Lịch chung" />
               </div>
             )}
-            <div className="grid gap-2">
-              <Label>Ngày trong tuần</Label>
-              <Select
-                onValueChange={(value) =>
-                  setForm((current) => ({ ...current, weekday: Number(value) }))
-                }
-                value={String(form.weekday)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(weekdayLabels).map(([value, label]) => (
-                    <SelectItem key={value} value={value}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className={template ? 'grid gap-2' : 'grid gap-2 sm:col-span-2'}>
+              <Label>{template ? 'Ngày trong tuần' : 'Áp dụng cho các ngày'}</Label>
+              {template ? (
+                <Select
+                  onValueChange={(value) =>
+                    setForm((current) => ({
+                      ...current,
+                      weekday: Number(value),
+                    }))
+                  }
+                  value={String(form.weekday)}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(weekdayLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <>
+                  <div className="grid gap-2 rounded-xl border border-slate-200 p-3 sm:grid-cols-4">
+                    {Object.entries(weekdayLabels).map(([value, label]) => {
+                      const weekday = Number(value);
+                      return (
+                        <label
+                          className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50"
+                          key={value}
+                        >
+                          <Checkbox
+                            checked={selectedWeekdays.includes(weekday)}
+                            onCheckedChange={(checked) =>
+                              toggleWeekday(weekday, checked === true)
+                            }
+                          />
+                          {label}
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      onClick={() => setSelectedWeekdays([1, 2, 3, 4, 5])}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      Chọn Thứ Hai – Thứ Sáu
+                    </Button>
+                    <Button
+                      onClick={() => setSelectedWeekdays([1, 2, 3, 4, 5, 6, 7])}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      Chọn cả tuần
+                    </Button>
+                    <Button
+                      onClick={() => setSelectedWeekdays([])}
+                      size="sm"
+                      type="button"
+                      variant="ghost"
+                    >
+                      Bỏ chọn
+                    </Button>
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    Sẽ tạo {selectedWeekdays.length} mẫu lịch giống nhau, mỗi ngày
+                    một mẫu.
+                  </p>
+                </>
+              )}
             </div>
             <div className="grid gap-2">
               <Label>Buổi</Label>
@@ -404,8 +484,19 @@ export function TemplateFormDialog({
             >
               Hủy
             </Button>
-            <Button disabled={isSaving || !form.content.trim()} type="submit">
-              {isSaving ? 'Đang lưu...' : 'Lưu mẫu lịch'}
+            <Button
+              disabled={
+                isSaving ||
+                !form.content.trim() ||
+                (!template && !selectedWeekdays.length)
+              }
+              type="submit"
+            >
+              {isSaving
+                ? 'Đang lưu...'
+                : !template && selectedWeekdays.length > 1
+                  ? 'Lưu ' + selectedWeekdays.length + ' mẫu lịch'
+                  : 'Lưu mẫu lịch'}
             </Button>
           </DialogFooter>
         </form>

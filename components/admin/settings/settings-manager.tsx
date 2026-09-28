@@ -29,7 +29,7 @@ export function SettingsManager() {
   } = useAdminSettings();
 
   return (
-    <main className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8">
+    <main className="mx-auto w-full max-w-[1380px] px-3.5 py-5 sm:px-6 sm:py-8">
       <AdminContentHeader
         description="Thiết lập thông tin trường, năm học hiện hành và ba phân hiệu sử dụng trong lịch công tác."
         eyebrow="Hệ thống"

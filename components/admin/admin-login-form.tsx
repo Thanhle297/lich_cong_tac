@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Link from '@/components/ui/plain-link';
 import {
   ArrowLeft,
   CalendarDays,
@@ -35,7 +34,6 @@ const getReturnTo = () => {
 };
 
 export function AdminLoginForm() {
-  const router = useRouter();
   const { status, signOut } = useAdminAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,9 +43,9 @@ export function AdminLoginForm() {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.replace(getReturnTo());
+      window.location.replace(getReturnTo());
     }
-  }, [router, status]);
+  }, [status]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -84,8 +82,7 @@ export function AdminLoginForm() {
         throw new Error('Tài khoản chưa được cấp quyền quản trị.');
       }
 
-      router.replace(getReturnTo());
-      router.refresh();
+      window.location.href = getReturnTo();
     } catch (signInFailure) {
       setError(
         signInFailure instanceof Error

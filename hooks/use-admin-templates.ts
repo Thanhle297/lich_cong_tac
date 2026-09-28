@@ -120,51 +120,69 @@ export function useAdminTemplates(createdBy?: string) {
   }, [loadTemplates]);
 
   const saveTemplate = useCallback(
-    async (input: RecurringTemplateInput, id?: string) => {
+    async (input: RecurringTemplateInput | RecurringTemplateInput[], id?: string) => {
       setIsSaving(true);
       setError('');
       setMessage('');
 
       try {
         const supabase = getSupabaseBrowserClient();
-        const payload = {
-          scope: input.scope,
-          campus_id: input.scope === 'campus' ? input.campus_id : null,
-          weekday: input.weekday,
-          session: input.session,
-          kind: input.scope === 'common' ? 'schedule' : input.kind,
-          time_text: input.time_text ? nullableText(input.time_text) : null,
-          content: input.content.trim(),
-          location: input.location ? nullableText(input.location) : null,
-          note: input.note ? nullableText(input.note) : null,
-          sort_order: input.sort_order,
-          is_active: input.is_active,
-        };
-        const saveResult = id
-          ? await supabase
-              .from('recurring_templates')
-              .update(payload)
-              .eq('id', id)
-              .select('id')
-              .single()
-          : await supabase
-              .from('recurring_templates')
-              .insert({ ...payload, created_by: createdBy ?? null })
-              .select('id')
-              .single();
+        const inputs = Array.isArray(input) ? input : [input];
+        const payloads = inputs.map((item) => ({
+          scope: item.scope,
+          campus_id: item.scope === 'campus' ? item.campus_id : null,
+          weekday: item.weekday,
+          session: item.session,
+          kind: item.scope === 'common' ? 'schedule' : item.kind,
+          time_text: item.time_text ? nullableText(item.time_text) : null,
+          content: item.content.trim(),
+          location: item.location ? nullableText(item.location) : null,
+          note: item.note ? nullableText(item.note) : null,
+          sort_order: item.sort_order,
+          is_active: item.is_active,
+        }));
+        const savedIds: string[] = [];
 
-        if (saveResult.error) {
-          throw saveResult.error;
+        if (id) {
+          const { data, error: updateError } = await supabase
+            .from('recurring_templates')
+            .update(payloads[0])
+            .eq('id', id)
+            .select('id')
+            .single();
+
+          if (updateError) {
+            throw updateError;
+          }
+
+          savedIds.push(data.id);
+        } else {
+          const { data, error: insertError } = await supabase
+            .from('recurring_templates')
+            .insert(
+              payloads.map((payload) => ({
+                ...payload,
+                created_by: createdBy ?? null,
+              })),
+            )
+            .select('id');
+
+          if (insertError) {
+            throw insertError;
+          }
+
+          savedIds.push(...(data ?? []).map((template) => template.id));
         }
 
-        const templateId = saveResult.data.id;
-        const rows = input.assignees.map((assignee) => ({
-          template_id: templateId,
-          person_id: assignee.person_id,
-          role_label: assignee.role_label
-            ? nullableText(assignee.role_label)
-            : null,
-        }));
+        const rows = savedIds.flatMap((templateId, index) =>
+          inputs[index].assignees.map((assignee) => ({
+            template_id: templateId,
+            person_id: assignee.person_id,
+            role_label: assignee.role_label
+              ? nullableText(assignee.role_label)
+              : null,
+          })),
+        );
 
         if (rows.length) {
           const { error: assigneeError } = await supabase
@@ -176,18 +194,21 @@ export function useAdminTemplates(createdBy?: string) {
           }
         }
 
-        const previousIds =
-          templates.find((template) => template.id === id)?.assignees.map(
-            (assignee) => assignee.person_id,
-          ) ?? [];
-        const selectedIds = new Set(rows.map((row) => row.person_id));
+        const previousIds = id
+          ? (templates.find((template) => template.id === id)?.assignees.map(
+              (assignee) => assignee.person_id,
+            ) ?? [])
+          : [];
+        const selectedIds = new Set(
+          inputs[0].assignees.map((assignee) => assignee.person_id),
+        );
         const removedIds = previousIds.filter((personId) => !selectedIds.has(personId));
 
-        if (removedIds.length) {
+        if (id && removedIds.length) {
           const { error: removeError } = await supabase
             .from('template_assignees')
             .delete()
-            .eq('template_id', templateId)
+            .eq('template_id', id)
             .in('person_id', removedIds);
 
           if (removeError) {
@@ -195,7 +216,15 @@ export function useAdminTemplates(createdBy?: string) {
           }
         }
 
-        setMessage(id ? 'Đã cập nhật mẫu lịch.' : 'Đã thêm mẫu lịch.');
+        setMessage(
+          id
+            ? 'Đã cập nhật mẫu lịch.'
+            : inputs.length > 1
+              ? 'Đã thêm ' +
+                inputs.length +
+                ' mẫu lịch cho các ngày đã chọn.'
+              : 'Đã thêm mẫu lịch.',
+        );
         await loadTemplates();
         return true;
       } catch (saveError) {

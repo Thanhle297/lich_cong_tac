@@ -47,7 +47,7 @@ export function PeopleManager() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8">
+    <main className="mx-auto w-full max-w-[1380px] px-3.5 py-5 sm:px-6 sm:py-8">
       <AdminContentHeader
         action={
           <Button className="w-full sm:w-auto" onClick={openCreate}>
@@ -62,7 +62,7 @@ export function PeopleManager() {
       <AdminFeedback error={error} message={message} />
 
       <Card className="border-slate-200 shadow-[0_8px_22px_rgba(15,40,70,0.05)]">
-        <CardContent className="px-0">
+        <CardContent className="px-3.5 sm:px-5 lg:px-0">
           {isLoading ? (
             <div className="space-y-3 px-6">
               <Skeleton className="h-10 w-full" />
@@ -70,7 +70,69 @@ export function PeopleManager() {
               <Skeleton className="h-10 w-full" />
             </div>
           ) : people.length ? (
-            <Table>
+            <>
+              <div className="grid gap-3 md:grid-cols-2 lg:hidden">
+                {people.map((person) => (
+                  <article
+                    className="rounded-xl border border-slate-200 bg-slate-50/60 p-4"
+                    key={person.id}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900">{person.full_name}</p>
+                        <p className="mt-1 text-sm leading-5 text-slate-600">
+                          {person.job_title || 'Chưa cập nhật chức vụ'}
+                        </p>
+                        <p className="mt-2 font-mono text-xs text-slate-400">
+                          Mã: {person.code || '—'}
+                        </p>
+                      </div>
+                      <div className="flex shrink-0 gap-1">
+                        <Button
+                          aria-label={`Sửa ${person.full_name}`}
+                          disabled={isSaving}
+                          onClick={() => openEdit(person)}
+                          size="icon-sm"
+                          variant="ghost"
+                        >
+                          <Pencil aria-hidden="true" />
+                        </Button>
+                        <ConfirmDeleteDialog
+                          description={`Xóa ${person.full_name} khỏi danh mục. Nếu người này đang được phân công, Supabase sẽ ngăn việc xóa để bảo toàn dữ liệu.`}
+                          disabled={isSaving}
+                          onConfirm={() => deletePerson(person)}
+                          title="Xóa nhân sự?"
+                          trigger={
+                            <Button
+                              aria-label={`Xóa ${person.full_name}`}
+                              size="icon-sm"
+                              variant="ghost"
+                            >
+                              <Trash2 aria-hidden="true" />
+                            </Button>
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3">
+                      <span className="text-xs font-semibold text-slate-500">
+                        {person.is_active ? 'Đang sử dụng' : 'Đã tạm ngưng'}
+                      </span>
+                      <Switch
+                        aria-label={`Đổi trạng thái ${person.full_name}`}
+                        checked={person.is_active}
+                        disabled={isSaving}
+                        onCheckedChange={(checked) =>
+                          void setPersonActive(person, checked)
+                        }
+                      />
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              <div className="hidden lg:block">
+                <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="pl-6">Mã</TableHead>
@@ -138,7 +200,9 @@ export function PeopleManager() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+                </Table>
+              </div>
+            </>
           ) : (
             <div className="grid min-h-64 place-items-center px-6 text-center">
               <div>

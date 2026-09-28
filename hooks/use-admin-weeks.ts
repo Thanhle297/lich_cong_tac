@@ -90,6 +90,15 @@ export function useAdminWeeks(createdBy?: string) {
             throw createError;
           }
           weekId = data as string;
+
+          const { error: updateEndsOnError } = await supabase
+            .from('calendar_weeks')
+            .update({ ends_on: addDays(input.starts_on, 6) })
+            .eq('id', weekId);
+
+          if (updateEndsOnError) {
+            throw updateEndsOnError;
+          }
         } else {
           const { data, error: createError } = await supabase
             .from('calendar_weeks')
@@ -97,7 +106,7 @@ export function useAdminWeeks(createdBy?: string) {
               academic_year_id: input.academic_year_id,
               week_number: input.week_number,
               starts_on: input.starts_on,
-              ends_on: addDays(input.starts_on, 4),
+              ends_on: addDays(input.starts_on, 6),
               status: 'draft',
               created_by: createdBy ?? null,
             })

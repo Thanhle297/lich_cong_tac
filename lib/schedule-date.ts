@@ -9,6 +9,12 @@ const toLocalDateValue = (date: Date) =>
     String(date.getDate()).padStart(2, '0'),
   ].join('-');
 
+export const getWeekEndDate = (startsOn: string) => {
+  const sunday = new Date(`${startsOn}T00:00:00`);
+  sunday.setDate(sunday.getDate() + 6);
+  return toLocalDateValue(sunday);
+};
+
 export const formatScheduleDate = (
   date: string,
   options: Intl.DateTimeFormatOptions,
@@ -20,7 +26,7 @@ export const formatScheduleDate = (
 export const getWeekDays = (startsOn: string): ScheduleDay[] => {
   const monday = new Date(`${startsOn}T00:00:00`);
 
-  return Array.from({ length: 5 }, (_, index) => {
+  return Array.from({ length: 7 }, (_, index) => {
     const day = new Date(monday);
     day.setDate(monday.getDate() + index);
     const date = toLocalDateValue(day);

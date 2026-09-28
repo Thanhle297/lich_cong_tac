@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import Link from 'next/link';
+import Link from '@/components/ui/plain-link';
 import { useParams } from 'next/navigation';
 import {
   Archive,
@@ -36,7 +36,7 @@ import type {
   WeekCellDefaults,
 } from '@/lib/admin-week-types';
 import { weekStatusLabels } from '@/lib/admin-week-types';
-import { formatPublishedAt } from '@/lib/admin-week-utils';
+import { addDays, formatPublishedAt } from '@/lib/admin-week-utils';
 import { cn } from '@/lib/utils';
 import { useAdminAuth } from '../admin-auth-provider';
 import { EntryFormDialog } from './entry-form-dialog';
@@ -130,7 +130,7 @@ export function WeekEditor() {
 
   if (isLoading) {
     return (
-      <main className="mx-auto w-full max-w-[1600px] space-y-4 px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto w-full max-w-[1600px] space-y-4 px-3.5 py-5 sm:px-6 sm:py-8">
         <Skeleton className="h-9 w-52" />
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-[560px] w-full" />
@@ -171,7 +171,7 @@ export function WeekEditor() {
     : undefined;
 
   return (
-    <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8">
+    <main className="mx-auto w-full max-w-[1600px] px-3.5 py-5 sm:px-6 sm:py-8">
       <Button asChild className="mb-4" size="sm" variant="ghost">
         <Link href="/admin/weeks">
           <ArrowLeft aria-hidden="true" />
@@ -202,7 +202,8 @@ export function WeekEditor() {
             </div>
             <p className="mt-2 text-sm text-slate-600">
               {week.academic_year?.name ?? 'Năm học không còn tồn tại'} ·{' '}
-              {formatDate(week.starts_on)} – {formatDate(week.ends_on)}
+              {formatDate(week.starts_on)} –{' '}
+              {formatDate(addDays(week.starts_on, 6))}
             </p>
             {week.published_at ? (
               <p className="mt-1 text-xs text-slate-500">

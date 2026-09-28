@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/empty';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { LatestWeek } from '@/lib/admin-types';
+import { addDays } from '@/lib/admin-week-utils';
 
 const formatDate = (date: string) =>
   new Intl.DateTimeFormat('vi-VN', {
@@ -59,7 +60,8 @@ export function LatestWeekCard({
               Tuần {latestWeek.week_number}
             </p>
             <p className="mt-1 text-sm text-slate-600">
-              {formatDate(latestWeek.starts_on)} – {formatDate(latestWeek.ends_on)}
+              {formatDate(latestWeek.starts_on)} –{' '}
+              {formatDate(addDays(latestWeek.starts_on, 6))}
             </p>
             <p className="mt-4 text-sm font-semibold text-[#0c6e85]">
               Trạng thái: {weekStatusLabels[latestWeek.status]}
